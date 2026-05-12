@@ -1,0 +1,26 @@
+# STAGE 1: Build
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
+
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
+
+RUN echo "ℹ️  Downloading Maven and Dependencies. This might take a while..." && \
+    ./mvnw dependency:go-offline -B -q > /dev/null 2>&1
+
+COPY src ./src
+RUN echo "ℹ️  Compiling and packaging application. This also might take a while..." && \
+    ./mvnw package -DskipTests -B -q
+
+# STAGE 2: Runtime
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+RUN echo "ℹ️  Installing netcat..." && \
+    apk add --no-cache netcat-openbsd > /dev/null 2>&1
+COPY --from=build /app/target/*.jar app.jar
+COPY scripts/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+EXPOSE 8080
+RUN echo "ℹ️  Setting up entrypoint..."
+ENTRYPOINT ["/app/start.sh"]
