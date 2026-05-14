@@ -18,7 +18,7 @@ At its current stage, the project is a foundational backend scaffold prepared fo
 
 ### Current Runtime Flow
 
-`1. Start containers (PostgreSQL + backend) → 2. Wait for DB port availability → 3. Run Spring Boot application JAR`
+**1.** Start containers (PostgreSQL + backend)    →    **2.** Wait for DB port availability     →    **3.** Run Spring Boot application JAR
 
 ---
 
@@ -103,33 +103,36 @@ backend/
 - `spring-boot-starter-security-test`
 
 ---
-TODO: verify if is right this part. I was able to use:
-```bash
-docker compose build
-docker compose up
-```
-
 ## 🚀 Local Development and Execution
 
-### 1) Run with Docker Compose
+### 🛠️ Prerequisites
+- **Colima** (recomended for macOS users with **Intel**)
+- **Docker & Docker Compose**
 
-From the repository root (where `backend/` exists), use:
-
+### 1) Building the System
+To see the styled build process:
 ```bash
-docker compose -f backend/compose.yaml up --build
+  docker compose build --progress=plain
 ```
 
-This starts PostgreSQL and the backend container with the predefined environment variables.
-
-### 2) Run backend locally (without container)
-
-From `backend/`:
+### 2) Running the Application
 
 ```bash
-./mvnw spring-boot:run
+  docker compose up
 ```
 
-If running outside Docker, ensure PostgreSQL is available and datasource properties are configured (via environment variables or `application.properties`).
+### 3) Verifying the Service
+
+Once you see the Spring Boot logo, test the custom endpoint:
+
+```bash
+  curl http://localhost:8080/hello
+```
+
+### Expected Outcome: 
+```json
+  {"message":"Java 21 is running!","status":"UP"}
+```
 
 ---
 
