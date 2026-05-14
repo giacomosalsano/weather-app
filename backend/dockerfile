@@ -2,25 +2,36 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 
+RUN printf "\n\033[1;32mℹ️  Downloaded Eclipse Temurin 21 JDK Alpine image...\033[0m\n"
+
+RUN printf "\n\033[1;44m🛠️  BUILD STAGE \033[0m\n"
+RUN printf "\n\033[1;34m📦 [BUILD]: Copying .mvn/ directory...\033[0m\n"
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
+
+RUN printf "\n\033[1;34m📦 [BUILD]: Copying mvnw, pom.xml and src directory...\033[0m\n"
 RUN chmod +x mvnw
 
-RUN echo "ℹ️  Downloading Maven and Dependencies. This might take a while..." && \
+RUN printf "\n\033[1;34m📦 [BUILD]: Downloading dependencies. This might take a while...\033[0m\n" && \
     ./mvnw dependency:go-offline -B -q > /dev/null 2>&1
 
 COPY src ./src
-RUN echo "ℹ️  Compiling and packaging application. This also might take a while..." && \
+RUN printf "\n\033[1;32m🏗️  [BUILD]: Compiling and packaging application. This also might take a while...\033[0m\n" && \
     ./mvnw package -DskipTests -B -q
 
 # STAGE 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-RUN echo "ℹ️  Installing netcat..." && \
+
+RUN printf "\n\033[1;36m🔧 [RUNTIME]: Preparing environment...\033[0m\n" && \
     apk add --no-cache netcat-openbsd > /dev/null 2>&1
+
 COPY --from=build /app/target/*.jar app.jar
 COPY scripts/start.sh /app/start.sh
 RUN chmod +x /app/start.sh
+
+RUN printf "\n\033[1;36m🚀  [RUNTIME]: Exposing port 8080...\033[0m\n" 
 EXPOSE 8080
-RUN echo "ℹ️  Setting up entrypoint..."
+
+RUN printf "\n\033[1;36m🚀  [RUNTIME]: Setting up entrypoint...\033[0m\n"
 ENTRYPOINT ["/app/start.sh"]
