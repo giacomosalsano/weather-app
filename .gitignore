@@ -33,3 +33,4 @@ build/
 .vscode/*
 .vscode/settings.json
 backend/src/main/java/com/.DS_Store
+.DS_Store
