@@ -27,7 +27,6 @@ public class WeatherEntity {
 
     @Column(nullable = false, unique = true)
     private String city;
-
     private Double temperature;
     private String description;
     private LocalDateTime timestamp;
