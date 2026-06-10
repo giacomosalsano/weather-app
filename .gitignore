@@ -34,3 +34,6 @@ build/
 .vscode/settings.json
 backend/src/main/java/com/.DS_Store
 .DS_Store
+
+### Docs tooling (Python venv opcional) ###
+docs/.venv/

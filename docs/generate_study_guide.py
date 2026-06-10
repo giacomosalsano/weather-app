@@ -1,18 +1,27 @@
 #!/usr/bin/env python3
-"""Gera o guia de estudos em PDF para o Weather App."""
+"""Generate the study guide in PDF for the Weather App."""
 
+import sys
 from pathlib import Path
 
-from fpdf import FPDF
+try:
+    from fpdf import FPDF  # pyright: ignore[reportMissingModuleSource]
+except ImportError:
+    print(
+        "Missing dependency: fpdf2\n"
+        "Install outside the main project:\n"
+        "  pip3 install --user fpdf2\n"
+        "See docs/README.md for details.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 DOCS_DIR = Path(__file__).resolve().parent
 OUTPUT = DOCS_DIR / "Guia-Arquitetura-Hexagonal-Weather-App.pdf"
 
-# Fontes UTF-8: Arial no macOS ou download DejaVu em docs/fonts/
-
 
 def ensure_fonts() -> tuple[str, str]:
-    """Fontes com suporte a UTF-8 (português)."""
+    """Fonts with support for UTF-8 (portuguese)."""
     candidates = [
         (
             "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
@@ -556,4 +565,4 @@ def build_pdf():
 
 if __name__ == "__main__":
     path = build_pdf()
-    print(f"PDF gerado: {path}")
+    print(f"PDF generated: {path}")
