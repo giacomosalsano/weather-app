@@ -3,12 +3,20 @@ package com.weather_app.infrastructure.adapters.out.external;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.weather_app.core.domain.Weather;
 import com.weather_app.core.ports.ExternalWeatherPort;
 
-@Component // This tells the Spring that this class is a valid Bean for injection!
+/**
+ * TO LEARN: Kept for offline demos. Active only with profile {@code mock}:
+ *   SPRING_PROFILES_ACTIVE=mock
+ * By default ({@code !mock}) the real OpenWeatherExternalAdapter is used instead.
+ * Spring allows only ONE bean of type ExternalWeatherPort at a time.
+ */
+@Component
+@Profile("mock")
 public class WeatherMockExternalAdapter implements ExternalWeatherPort {
 
     @Override
