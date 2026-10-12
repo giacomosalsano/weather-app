@@ -30,16 +30,11 @@ public class WeatherController {
     }
 
     @GetMapping("/{city}")
-    // TO LEARN: PathVariable is a Spring Web annotation that maps the GET request to the getWeather method.
-    // It intercepts the the parameters of the request and maps them to inject into the `String city` local variable
-    // Is the equivalent of the Decorators on JS/TS
+    // TO LEARN: PathVariable maps the URL segment into the city parameter.
+    // No try/catch here: CityNotFoundException bubbles to GlobalExceptionHandler → 404 JSON.
     public ResponseEntity<Weather> getWeather(@PathVariable String city) {
-        try {
-            Weather weather = getWeatherUseCase.execute(city);
-            return ResponseEntity.ok(weather);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Weather weather = getWeatherUseCase.execute(city);
+        return ResponseEntity.ok(weather);
     }
 
 
