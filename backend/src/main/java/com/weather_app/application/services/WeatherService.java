@@ -2,6 +2,7 @@ package com.weather_app.application.services;
 
 import org.springframework.stereotype.Service;
 
+import com.weather_app.core.domain.CityNotFoundException;
 import com.weather_app.core.domain.Weather;
 import com.weather_app.core.ports.ExternalWeatherPort;
 import com.weather_app.core.ports.GetWeatherUseCase;
@@ -28,7 +29,7 @@ public class WeatherService implements GetWeatherUseCase, SaveWeatherUseCase {
             .orElseGet(() -> {
                 // 2. If not found in the database, invoke the external port to search on the internet
                 Weather externalWeather = externalWeatherPort.fetchWeather(city)
-                    .orElseThrow(() -> new RuntimeException("City not found: " + city));
+                    .orElseThrow(() -> new CityNotFoundException(city));
                 
                 // 3. Save the result of the internet in the local database for future queries
                 return weatherRepositoryPort.save(externalWeather);
