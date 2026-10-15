@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.weather_app.core.domain.Weather;
 import com.weather_app.core.ports.GetWeatherUseCase;
 import com.weather_app.core.ports.SaveWeatherUseCase;
@@ -39,7 +41,9 @@ public class WeatherController {
 
 
     @PostMapping
-    public ResponseEntity<Weather> createWeather(@RequestBody WeatherRequest request) {
+    // TO LEARN: @Valid triggers Bean Validation on WeatherRequest BEFORE this method runs.
+    // Invalid body → MethodArgumentNotValidException → 400 (handler), not a DB insert.
+    public ResponseEntity<Weather> createWeather(@Valid @RequestBody WeatherRequest request) {
         Weather domainWeather = new Weather(
             request.city(),
             request.temperature(),
