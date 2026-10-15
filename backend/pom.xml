@@ -43,6 +43,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
+		<!-- TO LEARN: Bean Validation (Jakarta Validation + Hibernate Validator).
+		     In Spring Boot 4 this is NOT always pulled transitively by webmvc —
+		     we add the starter explicitly so @NotBlank / @Valid work. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
