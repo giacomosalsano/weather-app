@@ -1,9 +1,13 @@
 package com.weather_app.infrastructure.controllers;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -12,11 +16,11 @@ import com.weather_app.core.domain.CityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * TO LEARN: Central place that turns domain exceptions into HTTP responses.
- * Controllers stay focused on the happy path; this class owns error translation.
+ * TO LEARN: Central place that turns exceptions into HTTP JSON responses.
  *
- * {@code @RestControllerAdvice} = applies to all {@code @RestController}s
- * and serializes the return value as JSON ({@code @ResponseBody}).
+ * Two different failure families live here on purpose:
+ * - Domain: CityNotFoundException → 404
+ * - Input:  MethodArgumentNotValidException → 400 (Bean Validation / @Valid)
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -35,6 +39,29 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    /**
+     * TO LEARN: Thrown by Spring when {@code @Valid} finds annotation violations
+     * on the request body. The controller method is never called.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleValidation(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrors.put(error.getField(), error.getDefaultMessage()));
+
+        ApiError body = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Validation failed",
+                request.getRequestURI(),
+                fieldErrors);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     /**
