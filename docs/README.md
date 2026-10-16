@@ -35,6 +35,9 @@ Generated file:
 
 **[Guia-Arquitetura-Hexagonal-Weather-App.pdf](./Guia-Arquitetura-Hexagonal-Weather-App.pdf)**
 
+> **Note:** The PDF is a pedagogical guide and may lag behind the code.  
+> For the current implemented state prefer the root [`README.md`](../README.md) and [`backend/documentation.md`](../backend/documentation.md). Regenerate/update the PDF when you intentionally refresh the study material.
+
 Contents (19 chapters):
 
 1. Introduction and project goals  
