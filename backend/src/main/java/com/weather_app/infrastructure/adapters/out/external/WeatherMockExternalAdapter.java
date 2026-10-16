@@ -22,9 +22,9 @@ public class WeatherMockExternalAdapter implements ExternalWeatherPort {
     @Override
     public Optional<Weather> fetchWeather(String city) {
         // Simulating that we went to the internet and searched for the weather dynamically if the city is London
-        if (city.equalsIgnoreCase("Londres")) {
+        if (city.equalsIgnoreCase("London")) {
             Weather mockWeather = new Weather(
-                "Londres", 
+                "London", 
                 15.0, 
                 "Fine British rain (Simulated)", 
                 LocalDateTime.now()
