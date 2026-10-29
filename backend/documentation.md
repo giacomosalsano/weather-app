@@ -9,9 +9,9 @@ This file replaces the old scaffold-era notes (`com.example.*`, “features not 
 
 Java 21 / Spring Boot **4.0.5** service that:
 
-1. Exposes a small REST API for weather
+1. Exposes a small REST API for weather (list all, get by city, create)
 2. Caches results in PostgreSQL
-3. Fetches missing cities from **OpenWeatherMap** (or a mock profile)
+3. Fetches missing cities from **OpenWeatherMap** (or a mock profile) on get-by-city only
 4. Returns consistent JSON errors for “not found” and invalid input
 
 Architecture: **hexagonal** (ports & adapters).
@@ -65,11 +65,12 @@ com.weather_app
 │   │   └── CityNotFoundException        # domain failure → mapped to 404
 │   └── ports
 │       ├── GetWeatherUseCase
+│       ├── GetAllWeathersUseCase        # list all cached weathers
 │       ├── SaveWeatherUseCase
-│       ├── WeatherRepositoryPort
+│       ├── WeatherRepositoryPort        # save, findByCity, findAll
 │       └── ExternalWeatherPort
 ├── application.services
-│   └── WeatherService                   # cache-aside + save
+│   └── WeatherService                   # cache-aside + findAll + save
 └── infrastructure
     ├── config
     │   ├── SecurityConfig               # CSRF off; public /hello, /weather, /error
@@ -91,8 +92,17 @@ com.weather_app
 | Method | Path | Behaviour |
 |--------|------|-----------|
 | `GET` | `/hello` | Simple health-style JSON |
+| `GET` | `/weather` | List all rows in Postgres → `200` `List<Weather>` (may be `[]`) |
 | `GET` | `/weather/{city}` | DB → else OpenWeather → save → `200` `Weather` |
 | `POST` | `/weather` | Body `WeatherRequest` → `201` + `Location` |
+
+### `GET /weather` (findAll) — didactic notes
+
+- Use case: `GetAllWeathersUseCase` → `WeatherService.execute()` → `WeatherRepositoryPort.findAll()`
+- Persistence: `WeatherPersistenceAdapter` calls `JpaRepository.findAll()`, then maps each `WeatherEntity` → domain `Weather` via `stream().map(...).toList()`
+- Does **not** call OpenWeather — only what is already cached in `tb_weather`
+- Empty database → `200` with `[]` (not 404)
+- Routing: `@GetMapping` on the class mapped to `/weather` (no trailing slash required). City lookup stays on `/weather/{city}`
 
 ### Error responses (`ApiError`)
 
@@ -126,6 +136,8 @@ Shared JSON shape:
 - `city` **UNIQUE NOT NULL**
 - JPA: `spring.jpa.hibernate.ddl-auto=none` (schema owned by Flyway)
 - `WeatherEntity`: getters/setters via Lombok; **constructors written by hand** (avoids Lombok `@AllArgsConstructor` / JDK 25+ “Flexible Constructor Bodies” IDE issue while `java.version=21`)
+- `WeatherJpaRepository` extends `JpaRepository` — inherited `findAll()` returns `List<WeatherEntity>` (do not redeclare it); the adapter converts to `List<Weather>`
+- Outbound port speaks domain only: `WeatherRepositoryPort.findAll() → List<Weather>`
 
 ---
 
@@ -202,6 +214,7 @@ docker compose build backend
 docker compose up -d
 
 curl -s http://localhost:8080/hello
+curl -s http://localhost:8080/weather | python3 -m json.tool
 curl -s http://localhost:8080/weather/Porto | python3 -m json.tool
 ```
 
@@ -215,5 +228,5 @@ cd backend && ./mvnw compile
 
 ## Conclusion
 
-The backend is past the empty scaffold stage: hexagonal weather use cases, real external API, Flyway schema, validation, and global error JSON are in place.  
+The backend is past the empty scaffold stage: hexagonal weather use cases (get by city, list all, create), real external API, Flyway schema, validation, and global error JSON are in place.  
 The next focused learning milestone is **automated tests**, then remaining error cases and operational polish.

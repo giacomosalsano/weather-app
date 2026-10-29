@@ -11,7 +11,10 @@ Local stack runs with Docker Compose (PostgreSQL + Spring Boot API).
 | **Application** | Use-case implementations (`WeatherService`) |
 | **Infrastructure** | REST controllers, JPA, OpenWeather HTTP client, security, error handling |
 
-**Smart GET flow:** look up city in PostgreSQL (cache) → if missing, call OpenWeatherMap → save → return.
+**Flows:**
+- `GET /weather/{city}` — look up city in PostgreSQL (cache) → if missing, call OpenWeatherMap → save → return
+- `GET /weather` — list all cached rows from PostgreSQL only (no OpenWeather call)
+- `POST /weather` — create a row from the request body
 
 ## Tech stack
 
@@ -50,6 +53,9 @@ curl -s http://localhost:8080/hello
 ### API examples
 
 ```bash
+# List all cached weathers (DB only — empty array [] if none)
+curl -s http://localhost:8080/weather | python3 -m json.tool
+
 # Cache miss → OpenWeather → persist
 curl -s http://localhost:8080/weather/Porto | python3 -m json.tool
 
@@ -104,13 +110,14 @@ weather-app/
 
 ## What is already implemented
 
-- Hexagonal weather module (GET by city, POST create)
+- Hexagonal weather module: `GET /weather` (list), `GET /weather/{city}`, `POST /weather`
+- Use case `GetAllWeathersUseCase` + `WeatherRepositoryPort.findAll()` (domain `Weather`, not JPA entities)
 - Flyway migration `V1__create_tb_weather.sql`
 - OpenWeatherMap outbound adapter + env-based API key
 - Mock adapter via Spring profile `mock`
 - Global errors: `CityNotFoundException` → **404**, validation → **400**
 - Bean Validation on `WeatherRequest` (`@Valid`)
-- Public routes: `/hello`, `/weather/**`, `/error`
+- Public routes: `/hello`, `/weather`, `/weather/**`, `/error`
 
 ## Next learning steps
 
