@@ -228,7 +228,8 @@ def build_pdf() -> Path:
         "primeiro PostgreSQL; só se a cidade não existir no banco a API externa entra."
     )
     pdf.bullet(
-        "Há dois fluxos HTTP: GET /weather/{city} (busca + possível OpenWeather) e "
+        "Há três fluxos HTTP: GET /weather (lista o cache no Postgres, sem OpenWeather); "
+        "GET /weather/{city} (busca + possível OpenWeather); "
         "POST /weather (cria no banco; NÃO passa pela OpenWeather)."
     )
     pdf.bullet(
@@ -546,16 +547,18 @@ def build_pdf() -> Path:
     )
     pdf.h2("Componentes no fluxo GET")
     pdf.bullet("WeatherController — entrada HTTP")
-    pdf.bullet("GetWeatherUseCase / WeatherService — regra cache-aside")
+    pdf.bullet("GetWeatherUseCase / GetAllWeathersUseCase / WeatherService")
     pdf.bullet("WeatherRepositoryPort / PersistenceAdapter — Postgres")
-    pdf.bullet("ExternalWeatherPort / OpenWeatherExternalAdapter — API")
+    pdf.bullet("ExternalWeatherPort / OpenWeatherExternalAdapter — API (só get-by-city)")
     pdf.bullet("GlobalExceptionHandler — tradução de falhas em JSON HTTP")
     pdf.h2("Jornada da requisição (visão única)")
     pdf.code(
-        "Cliente\n"
-        "  → Security (permitAll em /weather/**)\n"
-        "  → WeatherController\n"
-        "  → WeatherService\n"
+        "GET /weather (findAll — só cache local):\n"
+        "  Controller → GetAllWeathersUseCase → Service.execute()\n"
+        "            → RepositoryPort.findAll() → Adapter (Entity→Weather) → 200 JSON []\n"
+        "\n"
+        "GET /weather/{city}:\n"
+        "  Cliente → Security → Controller → WeatherService\n"
         "       ├─ findByCity (Postgres)\n"
         "       │     hit  → retorna Weather\n"
         "       │     miss → fetchWeather (OpenWeather)\n"
@@ -635,6 +638,9 @@ def build_pdf() -> Path:
     pdf.code(
         "curl -s http://localhost:8080/hello\n"
         "\n"
+        "# list all cached (DB only)\n"
+        "curl -s http://localhost:8080/weather | python3 -m json.tool\n"
+        "\n"
         "# cache miss / hit\n"
         "curl -s http://localhost:8080/weather/Porto | python3 -m json.tool\n"
         "\n"
@@ -659,7 +665,14 @@ def build_pdf() -> Path:
     # ========== 9 ==========
     pdf.h1("9. Estado atual — o que estudar vs o que NÃO inventar")
     pdf.h2("Já implementado (pode estudar no código)")
-    pdf.bullet("Hexagonal básico, GET/POST weather, Flyway, OpenWeather, mock profile")
+    pdf.bullet(
+        "Hexagonal: GET /weather (findAll), GET /weather/{city}, POST /weather; "
+        "Flyway; OpenWeather; mock profile"
+    )
+    pdf.bullet(
+        "GetAllWeathersUseCase + WeatherRepositoryPort.findAll() — "
+        "adapter traduz List<WeatherEntity> → List<Weather> (stream/map/toList)"
+    )
     pdf.bullet("ApiError: 404 cidade, 400 validação (+ fieldErrors), 500 fallback")
     pdf.bullet("Docker Compose + WEATHER_API_KEY via .env")
     pdf.bullet("Documentação README + backend/documentation.md alinhadas")
