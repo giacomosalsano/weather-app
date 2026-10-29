@@ -1,5 +1,6 @@
 package com.weather_app.infrastructure.adapters.out.persistence;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -45,5 +46,19 @@ public class WeatherPersistenceAdapter implements WeatherRepositoryPort {
                         entity.getTemperature(),
                         entity.getDescription(),
                         entity.getTimestamp()));
+    }
+
+    // TO LEARN: jpaRepository.findAll() devolve List<WeatherEntity>, e List não tem map().
+    // stream() abre a lista, map traduz cada linha para Weather (igual ao findByCity)
+    // e toList() fecha de novo. O JPA continua escondido atrás desta classe.
+    @Override
+    public List<Weather> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(entity -> new Weather(
+                        entity.getCity(),
+                        entity.getTemperature(),
+                        entity.getDescription(),
+                        entity.getTimestamp()))
+                .toList();
     }
 }

@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WeatherJpaRepository extends JpaRepository<WeatherEntity, Long> {
     Optional<WeatherEntity> findByCity(String city);
+
+    // TO LEARN: findAll() já existe em JpaRepository e devolve List<WeatherEntity>.
+    // Não declare de novo aqui. Quem converte essa lista em List<Weather> é o adapter.
 }
