@@ -29,37 +29,21 @@ Verify the installation:
 python3 -c "from fpdf import FPDF; print('fpdf2 OK')"
 ```
 
-## Study Guide
+## Study materials (PDFs)
 
-Generated file:
+| File | Purpose | Regenerate |
+|------|---------|------------|
+| **[Roteiro-Estudo-Weather-App.pdf](./Roteiro-Estudo-Weather-App.pdf)** | Printable study roadmap (modules 1–12, Module 1 complete, request flow, commands) | `python3 generate_study_roadmap.py` |
+| **[Guia-Arquitetura-Hexagonal-Weather-App.pdf](./Guia-Arquitetura-Hexagonal-Weather-App.pdf)** | Broader hexagonal study guide (may lag behind the code) | `python3 generate_study_guide.py` |
 
-**[Guia-Arquitetura-Hexagonal-Weather-App.pdf](./Guia-Arquitetura-Hexagonal-Weather-App.pdf)**
+> For the current implemented state of the app, also prefer the root [`README.md`](../README.md) and [`backend/documentation.md`](../backend/documentation.md).
 
-> **Note:** The PDF is a pedagogical guide and may lag behind the code.  
-> For the current implemented state prefer the root [`README.md`](../README.md) and [`backend/documentation.md`](../backend/documentation.md). Regenerate/update the PDF when you intentionally refresh the study material.
-
-Contents (19 chapters):
-
-1. Introduction and project goals  
-2. Java 21 (records, DI, Optional)  
-3. Hexagonal architecture in practice  
-4. Spring Boot and syntax in use  
-5. Docker and local environment  
-6. Role of each class  
-7. CRUD and external API / microservices  
-8. Apache Kafka (first steps)  
-9. SonarQube  
-10. Cucumber (BDD)  
-11. Testing strategy  
-12. Suggested roadmap  
-13–18. Maven, JPA, DDD, OpenAPI, CI/CD, tool × layer summary  
-19. References  
-
-## Regenerate the PDF
+## Regenerate
 
 ```bash
 cd docs
-python3 generate_study_guide.py
+python3 generate_study_roadmap.py   # printable architecture study roadmap
+python3 generate_study_guide.py     # older broader hexagonal guide
 ```
 
-On macOS, the script uses the system **Arial Unicode** font for correct UTF-8 character rendering (Portuguese content in the PDF).
+On macOS, the scripts use the system **Arial Unicode** font for UTF-8 (Portuguese) rendering.
