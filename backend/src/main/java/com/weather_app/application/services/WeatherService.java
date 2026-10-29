@@ -1,16 +1,19 @@
 package com.weather_app.application.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.weather_app.core.domain.CityNotFoundException;
 import com.weather_app.core.domain.Weather;
 import com.weather_app.core.ports.ExternalWeatherPort;
+import com.weather_app.core.ports.GetAllWeathersUseCase;
 import com.weather_app.core.ports.GetWeatherUseCase;
 import com.weather_app.core.ports.SaveWeatherUseCase;
-import com.weather_app.core.ports.WeatherRepositoryPort; 
+import com.weather_app.core.ports.WeatherRepositoryPort;
 
 @Service
-public class WeatherService implements GetWeatherUseCase, SaveWeatherUseCase {
+public class WeatherService implements GetWeatherUseCase, GetAllWeathersUseCase, SaveWeatherUseCase {
 
     private final WeatherRepositoryPort weatherRepositoryPort;
     private final ExternalWeatherPort externalWeatherPort; 
@@ -39,5 +42,12 @@ public class WeatherService implements GetWeatherUseCase, SaveWeatherUseCase {
     @Override
     public Weather execute(Weather weather) {
         return weatherRepositoryPort.save(weather);
+    }
+
+    // TO LEARN: Aqui o use case ganha corpo. O serviço só pede a lista à porta.
+    // Ele não importa WeatherEntity e não chama o JPA. Essa tradução é do adapter.
+    @Override
+    public List<Weather> execute() {
+        return weatherRepositoryPort.findAll();
     }
 }
